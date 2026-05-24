@@ -29,7 +29,7 @@ async function main() {
       name: 'Amoxicillin 500mg',
       description: 'Broad-spectrum penicillin antibiotic for bacterial infections.',
       price: 15.99,
-      imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80',
+      imageUrl: '/amoxicillin.png',
       stock: {
         create: [
           { warehouseId: warehouse1.id, totalUnits: 50 },
@@ -45,7 +45,7 @@ async function main() {
       name: 'Atorvastatin 20mg',
       description: 'Statin medication to treat high cholesterol and triglyceride levels.',
       price: 45.50,
-      imageUrl: 'https://images.unsplash.com/photo-1550572017-edb9dd5eb7a7?w=800&q=80',
+      imageUrl: '/atorvastatin.png',
       stock: {
         create: [
           { warehouseId: warehouse1.id, totalUnits: 15 },
@@ -60,7 +60,7 @@ async function main() {
       name: 'Albuterol Inhaler',
       description: 'Quick-relief bronchodilator for preventing and treating wheezing and shortness of breath.',
       price: 35.00,
-      imageUrl: 'https://images.unsplash.com/photo-1631556097152-c2834b953a79?w=800&q=80',
+      imageUrl: '/albuterol.png',
       stock: {
         create: [
           { warehouseId: warehouse2.id, totalUnits: 5 },
