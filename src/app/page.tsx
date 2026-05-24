@@ -90,13 +90,13 @@ export default function Home() {
               <p className="text-zinc-400 text-sm mt-2 line-clamp-2">{product.description}</p>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Available Stock</p>
+              <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1 sticky top-0 bg-zinc-950/40 backdrop-blur-md z-10 py-1">Available Stock</p>
                 {product.stock.map((s: any) => (
-                  <div key={s.warehouseId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-900/60 p-4 rounded-xl border border-zinc-800/50">
+                  <div key={s.warehouseId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-zinc-900/80 p-3 rounded-lg border border-zinc-800/50 hover:border-zinc-700 transition-colors">
                     <div>
                       <div className="font-medium text-sm text-zinc-200">{s.warehouse.name}</div>
-                      <div className="text-xs text-zinc-500 mt-0.5">{s.warehouse.location}</div>
+                      <div className="text-[11px] text-zinc-500">{s.warehouse.location}</div>
                     </div>
                     <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
                       <span className={`text-sm font-bold ${s.availableUnits > 0 ? "text-emerald-400" : "text-rose-400"}`}>
@@ -105,7 +105,7 @@ export default function Home() {
                       <Button 
                         size="sm" 
                         variant={s.availableUnits > 0 ? "default" : "secondary"}
-                        className={s.availableUnits > 0 ? "bg-indigo-600 hover:bg-indigo-500 text-white" : ""}
+                        className={`h-8 px-3 text-xs ${s.availableUnits > 0 ? "bg-indigo-600 hover:bg-indigo-500 text-white" : ""}`}
                         disabled={s.availableUnits <= 0 || reserving !== null}
                         onClick={() => handleReserve(product.id, s.warehouseId)}
                       >
