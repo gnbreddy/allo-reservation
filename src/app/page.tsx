@@ -10,6 +10,8 @@ export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [reserving, setReserving] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 32;
   const router = useRouter();
 
   useEffect(() => {
@@ -67,58 +69,110 @@ export default function Home() {
     );
   }
 
+  const totalPages = Math.max(1, Math.ceil(products.length / ITEMS_PER_PAGE));
+  const paginatedProducts = products.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
   return (
-    <div className="container mx-auto p-4 md:p-8 max-w-6xl">
-      <div className="mb-12 text-center mt-12">
-        <h1 className="text-5xl font-extrabold mb-4 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+    <div className="container mx-auto p-2 md:p-4 max-w-[1600px] min-h-screen font-sans">
+      <div className="mb-8 text-center mt-6">
+        <h1 className="text-3xl font-bold mb-2 text-white">
           Allo Health Dispensary
         </h1>
-        <p className="text-zinc-400 text-lg">Secure your medical inventory instantly without race conditions.</p>
+        <p className="text-zinc-400 text-sm">Showing {products.length} medical items</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {products.map((product) => (
-          <Card key={product.id} className="overflow-hidden border-zinc-800/60 bg-zinc-950/40 backdrop-blur-md transition-all duration-300 hover:border-zinc-700 hover:shadow-2xl hover:shadow-indigo-500/10">
-            {product.imageUrl && (
-              <div className="relative group">
-                 <img src={product.imageUrl} alt={product.name} className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent opacity-80" />
-                 <div className="absolute bottom-4 left-4 text-2xl font-bold text-white">${product.price.toFixed(2)}</div>
+      
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-3">
+        {paginatedProducts.map((product) => (
+          <div key={product.id} className="flex flex-col bg-white border border-gray-200 rounded-sm overflow-hidden hover:shadow-lg transition-shadow duration-200 h-full group">
+            {/* Image Container */}
+            <div className="relative w-full aspect-square bg-gray-50 p-2 flex items-center justify-center border-b border-gray-100">
+              {product.imageUrl ? (
+                <img 
+                  src={product.imageUrl} 
+                  alt={product.name} 
+                  className="max-w-full max-h-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105" 
+                />
+              ) : (
+                <div className="text-gray-300 text-xs">No Image</div>
+              )}
+            </div>
+            
+            {/* Content Container */}
+            <div className="p-3 flex flex-col flex-grow">
+              <h2 className="text-[#007185] hover:text-[#c45500] hover:underline cursor-pointer text-sm font-medium line-clamp-2 leading-tight mb-1">
+                {product.name}
+              </h2>
+              <div className="text-2xl font-bold text-gray-900 leading-none mb-1">
+                <span className="text-xs align-top relative top-1">$</span>{Math.floor(product.price)}
+                <span className="text-xs align-top relative top-1">{(product.price % 1).toFixed(2).substring(1)}</span>
               </div>
-            )}
-            <CardHeader className="pt-6">
-              <CardTitle className="text-xl text-zinc-100">{product.name}</CardTitle>
-              <p className="text-zinc-400 text-sm mt-2 line-clamp-2">{product.description}</p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1 sticky top-0 bg-zinc-950/40 backdrop-blur-md z-10 py-1">Available Stock</p>
+              <div className="text-xs text-gray-500 mb-2 line-clamp-1">{product.description}</div>
+
+              {/* Delivery / Stock Area */}
+              <div className="mt-auto space-y-2">
                 {product.stock.map((s: any) => (
-                  <div key={s.warehouseId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-zinc-900/80 p-3 rounded-lg border border-zinc-800/50 hover:border-zinc-700 transition-colors">
-                    <div>
-                      <div className="font-medium text-sm text-zinc-200">{s.warehouse.name}</div>
-                      <div className="text-[11px] text-zinc-500">{s.warehouse.location}</div>
+                  <div key={s.warehouseId} className="flex flex-col gap-1 border-t border-gray-100 pt-2 mt-2 first:border-0 first:pt-0 first:mt-0">
+                    <div className="text-[11px] text-gray-600 leading-tight">
+                      Ships from <span className="font-medium text-gray-800">{s.warehouse.name}</span>
                     </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
-                      <span className={`text-sm font-bold ${s.availableUnits > 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                        {s.availableUnits} left
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[11px] font-bold ${s.availableUnits > 0 ? "text-[#007600]" : "text-[#B12704]"}`}>
+                        {s.availableUnits > 0 ? `In Stock (${s.availableUnits})` : "Currently unavailable"}
                       </span>
-                      <Button 
-                        size="sm" 
-                        variant={s.availableUnits > 0 ? "default" : "secondary"}
-                        className={`h-8 px-3 text-xs ${s.availableUnits > 0 ? "bg-indigo-600 hover:bg-indigo-500 text-white" : ""}`}
-                        disabled={s.availableUnits <= 0 || reserving !== null}
-                        onClick={() => handleReserve(product.id, s.warehouseId)}
-                      >
-                        {reserving === product.id ? "Reserving..." : "Reserve"}
-                      </Button>
                     </div>
+                    {s.availableUnits > 0 && (
+                      <button 
+                        onClick={() => handleReserve(product.id, s.warehouseId)}
+                        disabled={reserving !== null}
+                        className="w-full mt-1 bg-[#ffd814] hover:bg-[#f7ca00] text-black text-xs py-1.5 px-2 rounded-full border border-[#fcd200] shadow-sm font-medium transition-colors"
+                      >
+                        {reserving === product.id ? "Adding..." : "Add to Cart"}
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-12 mb-8">
+          <button 
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border border-zinc-700 rounded-md text-sm font-medium text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            &laquo; Previous
+          </button>
+          
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
+                  currentPage === i + 1 
+                    ? "bg-indigo-600 text-white border border-indigo-500" 
+                    : "text-zinc-400 hover:bg-zinc-800 border border-transparent"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+
+          <button 
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border border-zinc-700 rounded-md text-sm font-medium text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Next &raquo;
+          </button>
+        </div>
+      )}
     </div>
   );
 }
