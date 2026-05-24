@@ -83,9 +83,9 @@ export default function Home() {
       
       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-3">
         {paginatedProducts.map((product) => (
-          <div key={product.id} className="flex flex-col bg-white border border-gray-200 rounded-sm overflow-hidden hover:shadow-lg transition-shadow duration-200 h-full group">
+          <div key={product.id} className="flex flex-col bg-black border border-zinc-800 rounded-sm overflow-hidden hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-shadow duration-200 h-full group">
             {/* Image Container */}
-            <div className="relative w-full aspect-square bg-gray-50 p-2 flex items-center justify-center border-b border-gray-100">
+            <div className="relative w-full aspect-square bg-zinc-950 p-2 flex items-center justify-center border-b border-zinc-800">
               {product.imageUrl ? (
                 <img 
                   src={product.imageUrl} 
@@ -99,21 +99,21 @@ export default function Home() {
             
             {/* Content Container */}
             <div className="p-3 flex flex-col flex-grow">
-              <h2 className="text-[#007185] hover:text-[#c45500] hover:underline cursor-pointer text-sm font-medium line-clamp-2 leading-tight mb-1">
+              <h2 className="text-blue-400 hover:text-[#c45500] hover:underline cursor-pointer text-sm font-medium line-clamp-2 leading-tight mb-1">
                 {product.name}
               </h2>
-              <div className="text-2xl font-bold text-gray-900 leading-none mb-1">
-                <span className="text-xs align-top relative top-1">$</span>{Math.floor(product.price)}
-                <span className="text-xs align-top relative top-1">{(product.price % 1).toFixed(2).substring(1)}</span>
+              <div className="text-2xl font-bold text-white leading-none mb-1">
+                <span className="text-xs align-top relative top-1 text-zinc-300">$</span>{Math.floor(product.price)}
+                <span className="text-xs align-top relative top-1 text-zinc-300">{(product.price % 1).toFixed(2).substring(1)}</span>
               </div>
-              <div className="text-xs text-gray-500 mb-2 line-clamp-1">{product.description}</div>
+              <div className="text-xs text-zinc-400 mb-2 line-clamp-1">{product.description}</div>
 
               {/* Delivery / Stock Area */}
               <div className="mt-auto space-y-2">
                 {product.stock.map((s: any) => (
-                  <div key={s.warehouseId} className="flex flex-col gap-1 border-t border-gray-100 pt-2 mt-2 first:border-0 first:pt-0 first:mt-0">
-                    <div className="text-[11px] text-gray-600 leading-tight">
-                      Ships from <span className="font-medium text-gray-800">{s.warehouse.name}</span>
+                  <div key={s.warehouseId} className="flex flex-col gap-1 border-t border-zinc-800 pt-2 mt-2 first:border-0 first:pt-0 first:mt-0">
+                    <div className="text-[11px] text-zinc-400 leading-tight">
+                      Ships from <span className="font-medium text-zinc-200">{s.warehouse.name}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className={`text-[11px] font-bold ${s.availableUnits > 0 ? "text-[#007600]" : "text-[#B12704]"}`}>
