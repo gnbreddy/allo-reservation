@@ -71,9 +71,9 @@ export default function Home() {
     <div className="container mx-auto p-4 md:p-8 max-w-6xl">
       <div className="mb-12 text-center mt-12">
         <h1 className="text-5xl font-extrabold mb-4 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
-          Allo Devices
+          Allo Health Dispensary
         </h1>
-        <p className="text-zinc-400 text-lg">Secure your inventory instantly without race conditions.</p>
+        <p className="text-zinc-400 text-lg">Secure your medical inventory instantly without race conditions.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {products.map((product) => (

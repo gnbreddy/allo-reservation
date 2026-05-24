@@ -1,82 +1,75 @@
 import { PrismaClient } from '@prisma/client'
+
 const prisma = new PrismaClient()
 
 async function main() {
+  // Clear existing data
+  await prisma.reservation.deleteMany();
+  await prisma.stock.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.warehouse.deleteMany();
+
   const warehouse1 = await prisma.warehouse.create({
     data: {
-      name: 'Main Warehouse',
+      name: 'Central Pharmacy Hub',
       location: 'New York, NY',
     },
   })
 
   const warehouse2 = await prisma.warehouse.create({
     data: {
-      name: 'West Coast Hub',
+      name: 'West Coast Dispensary',
       location: 'Los Angeles, CA',
     },
   })
 
-  const product1 = await prisma.product.create({
+  // Product 1
+  await prisma.product.create({
     data: {
-      name: 'Ergonomic Chair',
-      description: 'A comfortable chair for long working hours.',
-      price: 299.99,
-      imageUrl: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=500&q=80',
+      name: 'Amoxicillin 500mg',
+      description: 'Broad-spectrum penicillin antibiotic for bacterial infections.',
+      price: 15.99,
+      imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80',
+      stock: {
+        create: [
+          { warehouseId: warehouse1.id, totalUnits: 50 },
+          { warehouseId: warehouse2.id, totalUnits: 20 },
+        ],
+      },
     },
   })
 
-  const product2 = await prisma.product.create({
+  // Product 2
+  await prisma.product.create({
     data: {
-      name: 'Mechanical Keyboard',
-      description: 'Tactile switches for the best typing experience.',
-      price: 149.99,
-      imageUrl: 'https://images.unsplash.com/photo-1595225476474-87563907a212?w=500&q=80',
+      name: 'Atorvastatin 20mg',
+      description: 'Statin medication to treat high cholesterol and triglyceride levels.',
+      price: 45.50,
+      imageUrl: 'https://images.unsplash.com/photo-1550572017-edb9dd5eb7a7?w=800&q=80',
+      stock: {
+        create: [
+          { warehouseId: warehouse1.id, totalUnits: 15 },
+        ],
+      },
     },
   })
 
-  const product3 = await prisma.product.create({
+  // Product 3
+  await prisma.product.create({
     data: {
-      name: 'Noise-Cancelling Headphones',
-      description: 'Block out the noise and focus on your work.',
-      price: 199.99,
-      imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+      name: 'Albuterol Inhaler',
+      description: 'Quick-relief bronchodilator for preventing and treating wheezing and shortness of breath.',
+      price: 35.00,
+      imageUrl: 'https://images.unsplash.com/photo-1631556097152-c2834b953a79?w=800&q=80',
+      stock: {
+        create: [
+          { warehouseId: warehouse2.id, totalUnits: 5 },
+        ],
+      },
     },
   })
 
-  // Add stock levels
-  await prisma.stock.create({
-    data: {
-      productId: product1.id,
-      warehouseId: warehouse1.id,
-      totalUnits: 50,
-    },
-  })
-
-  await prisma.stock.create({
-    data: {
-      productId: product1.id,
-      warehouseId: warehouse2.id,
-      totalUnits: 20,
-    },
-  })
-
-  await prisma.stock.create({
-    data: {
-      productId: product2.id,
-      warehouseId: warehouse1.id,
-      totalUnits: 15,
-    },
-  })
-
-  await prisma.stock.create({
-    data: {
-      productId: product3.id,
-      warehouseId: warehouse2.id,
-      totalUnits: 5,
-    },
-  })
-
-  console.log('Database seeded successfully!')
+  console.log('Database seeded with pharmaceutical items successfully!')
 }
 
 main()
