@@ -5,24 +5,29 @@ import CheckoutClient from "./checkout-client";
 export default async function CheckoutPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
-  const reservation = await prisma.reservation.findUnique({
+  const cart = await prisma.cart.findUnique({
     where: { id },
     include: {
-      product: true,
-      warehouse: true,
+      reservations: {
+        include: { product: true, warehouse: true }
+      }
     }
   });
 
-  if (!reservation) {
+  if (!cart) {
     notFound();
   }
 
   // Pass plain object to client component
-  const plainReservation = {
-    ...reservation,
-    expiresAt: reservation.expiresAt.toISOString(),
-    createdAt: reservation.createdAt.toISOString(),
+  const plainCart = {
+    ...cart,
+    createdAt: cart.createdAt.toISOString(),
+    reservations: cart.reservations.map(r => ({
+      ...r,
+      expiresAt: r.expiresAt.toISOString(),
+      createdAt: r.createdAt.toISOString(),
+    }))
   };
 
-  return <CheckoutClient reservation={plainReservation} />;
+  return <CheckoutClient cart={plainCart} />;
 }

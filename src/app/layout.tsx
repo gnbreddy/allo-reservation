@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   description: "Allo Health Inventory Reservation System",
 };
 
+import { Header } from "@/components/Header";
+import { SessionProvider } from "next-auth/react";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +32,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+        <SessionProvider>
+          <Header />
+          <main className="flex-grow flex flex-col">
+            {children}
+          </main>
+        </SessionProvider>
         <Toaster />
       </body>
     </html>

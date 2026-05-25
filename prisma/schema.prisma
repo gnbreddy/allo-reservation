@@ -51,4 +51,73 @@ model Reservation {
   expiresAt      DateTime
   createdAt      DateTime  @default(now())
   idempotencyKey String?   @unique
+  cartId         String?
+  cart           Cart?     @relation(fields: [cartId], references: [id])
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Cart {
+  id           String        @id @default(uuid())
+  createdAt    DateTime      @default(now())
+  status       String        // "ACTIVE", "CHECKED_OUT"
+  reservations Reservation[]
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Auth.js Models
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  carts         Cart[]
+  reservations  Reservation[]
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([provider, providerAccountId])
+}
+ 
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@id([identifier, token])
 }

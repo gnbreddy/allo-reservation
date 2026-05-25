@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 export async function POST(request: Request) {
   try {
-    const { productId, warehouseId, quantity = 1 } = await request.json();
+    const { productId, warehouseId, quantity = 1, cartId } = await request.json();
     const idempotencyKey = request.headers.get("Idempotency-Key");
+    
+    const session = await auth();
+    const userId = session?.user?.id;
 
     if (!productId || !warehouseId || quantity <= 0) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
@@ -39,6 +43,29 @@ export async function POST(request: Request) {
       // If stock was successfully reserved, create the reservation record
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
+      // If a cartId was passed, ensure the cart exists, otherwise create one.
+      let activeCartId = cartId;
+      if (activeCartId) {
+        const cart = await tx.cart.findUnique({ where: { id: activeCartId } });
+        if (!cart) activeCartId = undefined; // Fallback if invalid cartId
+      }
+
+      if (!activeCartId) {
+        const newCart = await tx.cart.create({
+          data: { 
+            status: "ACTIVE",
+            userId: userId || undefined
+          },
+        });
+        activeCartId = newCart.id;
+      } else if (userId) {
+        // If they logged in but already had an anonymous cart, link the cart to them
+        await tx.cart.update({
+          where: { id: activeCartId },
+          data: { userId },
+        });
+      }
+
       const reservation = await tx.reservation.create({
         data: {
           productId,
@@ -47,10 +74,12 @@ export async function POST(request: Request) {
           status: "PENDING",
           expiresAt,
           idempotencyKey: idempotencyKey || null,
+          cartId: activeCartId,
+          userId: userId || undefined
         },
       });
 
-      return reservation;
+      return { reservation, cartId: activeCartId };
     });
 
     return NextResponse.json(result, { status: 201 });

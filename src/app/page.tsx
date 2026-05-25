@@ -15,7 +15,27 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(); // Initial fast-paint
+
+    const eventSource = new EventSource("/api/products/stream");
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setProducts(data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to parse SSE data", err);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("EventSource failed:", error);
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   const fetchProducts = async () => {
@@ -34,20 +54,30 @@ export default function Home() {
     setReserving(productId);
     try {
       const idempotencyKey = crypto.randomUUID();
+      const existingCartId = localStorage.getItem("cartId");
+
       const res = await fetch("/api/reservations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Idempotency-Key": idempotencyKey,
         },
-        body: JSON.stringify({ productId, warehouseId, quantity: 1 }),
+        body: JSON.stringify({ 
+          productId, 
+          warehouseId, 
+          quantity: 1,
+          cartId: existingCartId || undefined
+        }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Item reserved! Redirecting to checkout...");
-        router.push(`/checkout/${data.id}`);
+        if (data.cartId) {
+          localStorage.setItem("cartId", data.cartId);
+          window.dispatchEvent(new Event("cart-updated"));
+        }
+        toast.success("Item added to cart!");
       } else if (res.status === 409) {
         toast.error(data.error || "Someone else just bought the last unit!");
         fetchProducts(); // refresh stock
